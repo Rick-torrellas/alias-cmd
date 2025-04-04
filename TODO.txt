@@ -1,0 +1,8 @@
+# instalacion
+	
+	clonar el repositorio de github.
+	ejecutar el script creado para activar el proceso de instalacion
+	## proceso de instalacion
+		crear una carpeta en la carpeta de usuario, llamada: .alias
+		copiar todos los archivos necesarios, sacados del repositorio.
+		agregar el archivo central al registro Autorun
