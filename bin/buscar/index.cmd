@@ -1,1 +1,1 @@
-call "%~dp0paquete\index.cmd"
+call "%~dp0buscar_paquete\index.cmd"
