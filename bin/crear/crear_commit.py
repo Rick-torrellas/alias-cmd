@@ -13,7 +13,7 @@ def _add():
         text=True,
         shell=True
     )
-    __check(ejecucion.returncode,ejecucion,ejecucion.stderr,"git add completado","se creo un error al ejecutar git add") 
+    __check(ejecucion.returncode,ejecucion.stdout,ejecucion.stderr,"git add completado","se creo un error al ejecutar git add") 
     return ejecucion
 
 def _commit(titulo: str|None=None,contenido: str|None=None):
@@ -32,7 +32,6 @@ def _commit(titulo: str|None=None,contenido: str|None=None):
         text=True,
         shell=True
         )
-        print(ejecucion)
         __check(ejecucion.returncode,ejecucion.stdout,ejecucion.stderr,"se creo un commit con titulo y mensaje","se produjo un error al crear el commit")
         return ejecucion
     
