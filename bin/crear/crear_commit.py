@@ -17,13 +17,14 @@ def _add():
     return ejecucion
 
 def _commit(titulo: str|None=None,contenido: str|None=None):
-    comando_con_contenido = f"git commit -m {titulo} -m {contenido}"
-    comando_sin_contenido = f"git commit -m {titulo}"
+    comando_con_contenido = f"git commit -m \"{titulo}\" -m \"{contenido}\""
+    comando_sin_contenido = f"git commit -m \"{titulo}\""
     ejecucion = None
     
     if titulo == None:
         __error(1,f"valor de titulo: {titulo}","se debe proporcionar el titulo como minimo")
         sys.exit(1)
+        
     if contenido:
         ejecucion = run(
         comando_con_contenido,
@@ -31,15 +32,17 @@ def _commit(titulo: str|None=None,contenido: str|None=None):
         text=True,
         shell=True
         )
-        __check(ejecucion.returncode,ejecucion,ejecucion.stderr,"se creo un commit con titulo y mensaje","se produjo un error al crear el commit")
+        print(ejecucion)
+        __check(ejecucion.returncode,ejecucion.stdout,ejecucion.stderr,"se creo un commit con titulo y mensaje","se produjo un error al crear el commit")
         return ejecucion
+    
     ejecucion = run(
         comando_sin_contenido,
         capture_output=True,
         text=True,
         shell=True
         )
-    __check(ejecucion.returncode,ejecucion,ejecucion.stderr,"se creo un commit con titulo","se produjo un error al crear el commit")
+    __check(ejecucion.returncode,ejecucion.stdout,ejecucion.stderr,"se creo un commit con titulo","se produjo un error al crear el commit")
     return ejecucion
 
 def _push():
@@ -50,7 +53,7 @@ def _push():
         text=True,
         shell=True
         )
-    __check(ejecucion.returncode,ejecucion,ejecucion.stderr,"push ejecutado correctamente","se ah producido un error al ejecutar el push")
+    __check(ejecucion.returncode,ejecucion.stderr,ejecucion.stderr,"push ejecutado correctamente","se ah producido un error al ejecutar el push")
     return ejecucion
 
 def __check(code,resultado_ok=None,resultado_error=None,mensaje_ok="tarea completada",mensaje_error="se ah producido un error"):
@@ -65,16 +68,20 @@ def __ok(code,resultado,mensaje):
 def __error(code,error=None,mensaje="se ah producido un error"):
     if code > 0:
         console.print(f"\n{error}")
+        console.print(f"error code: {code}")
         console.print(f"\n❌",f"[red]{mensaje}[/]")
         sys.exit(1)
+        
+def _proceso_completo(titulo,contenido):
+    _add()
+    _commit(titulo,contenido)
+    _push()
         
 def main_con_argumentos():
     titulo = sys.argv[1] if len(sys.argv) > 1 else None
     contenido =  sys.argv[2] if len(sys.argv) > 2 else None
     
-    _add()
-    _commit(titulo,contenido)
-    _push()
+    _proceso_completo(titulo,contenido)
     return 0
     
 def main_interactivo():
@@ -87,23 +94,20 @@ def main_interactivo():
             "Quieres agregar contenido a tu commit?",
             choices=["No", "Si"],
         ).ask()
-    print(pregunta_contenido)
-    pass
     
-    _add()
+    if pregunta_contenido == None:
+        sys.exit(0)
     
-    if pregunta_contenido == "No" or pregunta_contenido == None:
-        _commit(titulo)
-        _push()
+    if pregunta_contenido == "No":
+        _proceso_completo(titulo,None)
         return 0
     
-    try:
-        contenido = questionary.text("cual es el contenido de tu commit?").ask()
-    except KeyboardInterrupt:
-        print("\nOperación cancelada por el usuario")
+    contenido = questionary.text("cual es el contenido de tu commit?").ask()
+    
+    if contenido == None:
         sys.exit(0)
-    _commit(titulo,contenido)
-    _push()
+    
+    _proceso_completo(titulo,contenido)
     return 0
 
 def main():
