@@ -1,0 +1,16 @@
+# cmd
+
+gh
+git
+yt-dlp
+aria2c
+wget
+chocolatey
+
+
+# python 
+
+questionary
+rich
+
+rich

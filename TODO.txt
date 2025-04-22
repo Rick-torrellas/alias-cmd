@@ -6,3 +6,17 @@
 		crear una carpeta en la carpeta de usuario, llamada: .alias
 		copiar todos los archivos necesarios, sacados del repositorio.
 		agregar el archivo central al registro Autorun
+
+# multi-lenguaje
+
+	editar la estructura del projecto y ponerla en ingles, pero todos los comandos crear verciones segun el idioma, por ejemplo espanl: descargar_video , ingles: download_video.
+
+# crear workspation
+
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	]
+}
