@@ -5,14 +5,9 @@ from rich.console import Console
 import json
 import questionary
 
-def test():
-    comando = f"gh auth status"
-    proceso = run(
-        comando,
-        capture_output=True,
-        text=True,
-        shell=True
-    )
-    return proceso
+pregunta = questionary.select(
+    "What do you want to do?",
+    choices=["Order a pizza", "Make a reservation", "Ask for opening hours"],
+).ask()
 
-print(test())
+print(pregunta)

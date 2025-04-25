@@ -77,7 +77,7 @@ def main_interactivo():
     if titulo == None:
         __error(1,f"el valor del titulo es: {titulo}","debe propocionarse un titulo para el commit")
     
-    pregunta_contenido = questionary.rawselect(
+    pregunta_contenido = questionary.select(
             "Quieres agregar contenido a tu commit?",
             choices=["No", "Si"],
         ).ask()

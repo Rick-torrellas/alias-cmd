@@ -1,6 +1,8 @@
 import sys 
 from subprocess import run
 from rich.console import Console
+from questionary import text
+
 
 console = Console()
 
@@ -18,6 +20,11 @@ inicio = sys.argv[1]
 final =  sys.argv[2]
 archivo_origen =  sys.argv[3]
 archivo_final =  sys.argv[4]
+
+def main_interactivo():
+    inicio = text("cual es el punto de inicio para el corte").ask() 
+    final = text("cual es el punto final del corte").ask()
+    archivo_origen = text("indique el video que se va a cortar")
 
 def main():
     resultado = cortar_video(inicio,final,archivo_origen,archivo_final)
