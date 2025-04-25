@@ -1,13 +1,13 @@
 agregar
+crear
+eliminar
 buscar
 comprimir
 copiar
 cortar
-crear
 descargar
 descomprimir
 desinstalar
-eliminar
 instalar
 listar
 renombrar

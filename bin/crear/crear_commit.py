@@ -1,7 +1,11 @@
 import sys 
+from pathlib import Path
+ruta_proyecto = str(Path(__file__).parent.parent.parent)
+sys.path.append(ruta_proyecto)
 from subprocess import run
 from rich.console import Console
 import questionary
+from util.errors import __check,__error,__ok
 
 console = Console()
 
@@ -54,22 +58,6 @@ def _push():
         )
     __check(ejecucion.returncode,ejecucion.stderr,ejecucion.stderr,"push ejecutado correctamente","se ah producido un error al ejecutar el push")
     return ejecucion
-
-def __check(code,resultado_ok=None,resultado_error=None,mensaje_ok="tarea completada",mensaje_error="se ah producido un error"):
-    __error(code,resultado_error,mensaje_error)
-    __ok(code,resultado_ok,mensaje_ok)
-
-def __ok(code,resultado,mensaje):
-    if code == 0:
-        print(f"\n{resultado}")
-        console.print(f"\n✅",f"[green]{mensaje}[/]")
-
-def __error(code,error=None,mensaje="se ah producido un error"):
-    if code > 0:
-        console.print(f"\n{error}")
-        console.print(f"error code: {code}")
-        console.print(f"\n❌",f"[red]{mensaje}[/]")
-        sys.exit(1)
         
 def _proceso_completo(titulo,contenido):
     _add()
