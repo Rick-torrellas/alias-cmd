@@ -1,3 +1,1 @@
-@REM call "%~dp0video\index.cmd"
-call "%~dp0audio\index.cmd"
-call "%~dp0playlist\index.cmd"
+doskey descargar_video_youtube=python "%~dp0descargar_video_youtube.py" $1 $2 $3 $4
