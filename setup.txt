@@ -1,0 +1,5 @@
+# verificar si python esta instalado
+	si no lo esta instalarlo
+# con un script de python, instalar las dependencias, tanto paquetes de python como comandos para el sistema.
+# copiar los archivos del programa a /user/.alias-cmd
+# anadir el script al registro

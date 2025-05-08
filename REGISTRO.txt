@@ -1,0 +1,8 @@
+Computer\HKEY_CURRENT_USER\Software\Microsoft\Command Processor
+
+para ejecutar un script como administrador:
+@echo off
+runas /user:<nombre_de_usuario_administrador> "cmd /c tu_script_modificacion_registro.bat"
+
+para pedir el nombre de usuario administrador 
+set /p <variable>=<texto_a_mostrar_al_usuario>
