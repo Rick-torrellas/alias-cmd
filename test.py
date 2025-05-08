@@ -1,64 +1,29 @@
-import sys 
-import os
-from subprocess import run,CalledProcessError,TimeoutExpired
-from rich.console import Console
-import questionary
-import json
-import re
+from rich.progress import Progress,TimeElapsedColumn
+import subprocess
+import time
+from datetime import timedelta
 from icecream import ic
 
-def get_available_resolutions(video_url):
-    # Comando para listar formatos en JSON (estructurado)
-    comando = [
-        "yt-dlp",
-        "--list-formats",
-        "--skip-download",
-        "--dump-json",
-        video_url
-    ]
-    try:
-        result = run(comando,capture_output=True,text=True,shell=True)
-        json_str = re.search(r'\{.*\}', result.stdout, re.DOTALL).group() # type: ignore
-        formats = json.loads(json_str)["formats"]
-        ic(ic(),result.returncode)
-        # Ejecutar yt-dlp y capturar la salida JSON
-        # Extraer resoluciones únicas (evitando duplicados)
-        resolutions = set()
-        for f in formats:
-            if 'resolution' in f:
-                if f['resolution'] not in ['audio only', 'unknown']:  # ⬅️ Comparación directa
-                    resolutions.add(f['resolution'])   
-            elif 'height' in f:
-                resolutions.add(f"{f['height']}p")
-        return sorted(resolutions, key=lambda x: int(x.replace('p', '')) if x.endswith('p') else 0)
-    except CalledProcessError as e:
-        print(f"❌ Error al ejecutar yt-dlp:")
-        print(e.stderr)
-        ic(ic(),e.stderr)
-        return []
-    except FileNotFoundError:
-        print("Error: Comando no encontrado. ¿Está instalado?")
-    except json.JSONDecodeError:
-        print("❌ No se pudo parsear la salida de yt-dlp.")
-        return []
-    except PermissionError:
-        print("Error: Permisos denegados.")
-    except TimeoutExpired:
-        print("⌛ ¡Tiempo de espera agotado!")
-    except ValueError:
-        print("📛 Argumentos inválidos.")
-    except Exception as e:  # Captura cualquier otro error inesperado
-        print("⚠️ Error inesperado:")
-        ic(ic(),f"{type(e).__name__} - {str(e)}")
-    
-# cmd = f'yt-dlp -f "bestvideo[height<={height}]+bestaudio" --merge-output-format mp4 "{url}"'
-# cmd = f'yt-dlp -f "best[height<={selected_res.split("x")[1]}]" "URL"'
-""" if "x" not in selected_res:
-    print("¡Usa formato ANCHOxALTO!") """
-# height = selected_res.replace("p", "")  # "720p" -> 720
 
-# Ejemplo de uso
-url = "https://www.youtube.com/watch?v=JJ9zZ8cyaEk&list=WL&index=75&t=3s&ab_channel=NeuralNine"  # Reemplaza con tu URL
-ic.disable()
-resolutions = get_available_resolutions(url)
-print("🔍 Resoluciones disponibles:", resolutions)
+
+def exec_process(process: list):
+    total_process = len(process)
+    incremento = 100 / total_process  # Calcula el avance por comando
+    with Progress() as progress: # transient=True para eliminar la barra una vez finalizada
+        start_time = time.time()
+        tarea = progress.add_task("[red]Ejecutando...", total=100)
+        for i,action in enumerate(process):
+            action()
+            progress.update(tarea, advance=incremento)
+        
+procesos = [
+    lambda: subprocess.run("dir", shell=True),
+    lambda: subprocess.run("echo olis", shell=True),
+    lambda: subprocess.run("ping google.com", shell=True),
+    lambda: subprocess.run("dir", shell=True),
+    lambda: subprocess.run("mkdir olis", shell=True),
+    lambda: subprocess.run("dir", shell=True)
+]
+        
+
+exec_process(procesos)

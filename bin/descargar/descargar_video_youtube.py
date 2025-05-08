@@ -1,10 +1,18 @@
+from pathlib import Path
 import sys 
+ruta_proyecto = str(Path(__file__).parent.parent.parent)
+sys.path.append(ruta_proyecto)
+
 from subprocess import run,CalledProcessError,TimeoutExpired
 from rich.console import Console
+from rich.progress import Progress
 from questionary import text,select
 from icecream import ic
 from json import loads,JSONDecodeError
 import re
+from util.mesagges import keyboard_interrupt,exito
+
+console = Console()
 
 def __obtener_resoluciones_disponibles(video_url):
     # Comando para listar formatos en JSON (estructurado)
@@ -15,38 +23,19 @@ def __obtener_resoluciones_disponibles(video_url):
         "--dump-json",
         video_url
     ]
-    try:
-        result = run(comando,capture_output=True,text=True,shell=True)
-        json_str = re.search(r'\{.*\}', result.stdout, re.DOTALL).group() # type: ignore
-        formats = loads(json_str)["formats"]
-        # Ejecutar yt-dlp y capturar la salida JSON
-        # Extraer resoluciones únicas (evitando duplicados)
-        resolutions = set()
-        for f in formats:
-            if 'resolution' in f:
-                if f['resolution'] not in ['audio only', 'unknown']:  # ⬅️ Comparación directa
-                    resolutions.add(f['resolution'])   
-            elif 'height' in f:
-                resolutions.add(f"{f['height']}p")
-        return sorted(resolutions, key=lambda x: int(x.replace('p', '')) if x.endswith('p') else 0)
-    except CalledProcessError as e:
-        print(f"❌ Error al ejecutar yt-dlp:")
-        ic(ic(),e.stderr)
-        return []
-    except FileNotFoundError:
-        print("Error: Comando no encontrado. ¿Está instalado?")
-    except JSONDecodeError:
-        print("❌ No se pudo parsear la salida de yt-dlp.")
-        return []
-    except PermissionError:
-        print("Error: Permisos denegados.")
-    except TimeoutExpired:
-        print("⌛ ¡Tiempo de espera agotado!")
-    except ValueError:
-        print("📛 Argumentos inválidos.")
-"""     except Exception as e:  # Captura cualquier otro error inesperado
-        print("⚠️ Error inesperado:")
-        ic(ic(),f"{type(e).__name__} - {str(e)}") """
+    result = run(comando,capture_output=True,text=True,shell=True)
+    json_str = re.search(r'\{.*\}', result.stdout, re.DOTALL).group() # type: ignore
+    formats = loads(json_str)["formats"]
+    # Ejecutar yt-dlp y capturar la salida JSON
+    # Extraer resoluciones únicas (evitando duplicados)
+    resolutions = set()
+    for f in formats:
+        if 'resolution' in f:
+            if f['resolution'] not in ['audio only', 'unknown']:  # ⬅️ Comparación directa
+                resolutions.add(f['resolution'])   
+        elif 'height' in f:
+            resolutions.add(f"{f['height']}p")
+    return sorted(resolutions, key=lambda x: int(x.replace('p', '')) if x.endswith('p') else 0)
         
 def __limpiar_resoluciones(resolucion):
     if "x" in resolucion:
@@ -62,15 +51,31 @@ def __descargar_video(video_url,resolusion=None):
 
 
 def main_interactivo(debug=False):
-    video_url = text("indica la url/s del video/s a descargar").ask()
-    if video_url == None: exit()
-    
-    resoluciones = __obtener_resoluciones_disponibles(video_url)
-    resolucion = select("inidica la resolucion para descargar:",choices=resoluciones).ask() # type: ignore
-    print(resolucion,type(resolucion))
-    resolucion_limpia = __limpiar_resoluciones(resolucion)
-    descargar_video = __descargar_video(video_url,resolucion_limpia)
-    print(descargar_video.stdout)
+    procesos= 4
+    incremento = 100/procesos
+    console.print()
+    video_url = text("indica la url/s del video/s a descargar",).ask(kbi_msg="")
+    if video_url == None: keyboard_interrupt()
+    with Progress() as progress:
+        tarea = progress.add_task("[red]Ejecutando...", total=100)
+        progress.update(tarea,description="opteniendo resoluciones", advance=0)
+        
+        resoluciones = __obtener_resoluciones_disponibles(video_url)
+        console.print("[green] resoluciones optenidas")
+        progress.update(tarea,description="escoger resolucion", advance=incremento)
+        
+        resolucion = select("inidica la resolucion para descargar:",choices=resoluciones).ask(kbi_msg="") 
+        if resolucion == None: keyboard_interrupt()
+        progress.update(tarea,description="limpiando resoluciones", advance=incremento)
+        
+        resolucion_limpia = __limpiar_resoluciones(resolucion)
+        progress.update(tarea,description="descargar video", advance=incremento)
+        
+        descargar_video = __descargar_video(video_url,resolucion_limpia)
+        progress.update(tarea,description="proceso completado", advance=incremento,)
+        
+        print(descargar_video.stdout)
+        exito()
 
 def main():
     main_interactivo()
